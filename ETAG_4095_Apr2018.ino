@@ -82,7 +82,7 @@ unsigned int mDelay2 = 0;
 volatile bool SLEEP_FLAG;
 
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
-const unsigned int pollTime1 = 5000;       //How long in milliseconds to poll for tags on circuit 1
+const unsigned int pollTime1 = 3000;       //How long in milliseconds to poll for tags on circuit 1
 const unsigned int pollTime2 = 1000;       //How long in milliseconds to poll for tags on circuit 2
 const unsigned int readInterval = 500;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
 const unsigned int pauseTime = 500;        //How long in milliseconds to wait between polling intervals
@@ -317,7 +317,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         {RFcircuit = 2;}              // comment out the if statement to use just 1 RFID circuit
         else
         {RFcircuit = 1;}
-  //RFcircuit = 1;              //This lines sets the active RF circuit to 1. comment out or delete to use both circuits. Uncomment if you just want to use the primary circuit.
+  RFcircuit = 1;              //This lines sets the active RF circuit to 1. comment out or delete to use both circuits. Uncomment if you just want to use the primary circuit.
 }// end void loop
 
 
