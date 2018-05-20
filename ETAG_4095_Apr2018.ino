@@ -81,6 +81,19 @@ unsigned int mDelay = 0;
 unsigned int mDelay2 = 0;
 volatile bool SLEEP_FLAG;
 
+//Set up Serial MP3 Variables
+byte selectDevice[5] = {0x7E,0x03,0x35,0x01,0xEF};
+byte playDevice[4] = {0x7E,0x02,0x01,0xEF};
+byte playLoop[5] = {0x7E,0x03,0x33,0x00,0xEF};
+byte play1stsong[8] = {0x7E,0xFF,0x06,0x0F,0x00,0x01,0x01,0xEF};
+byte playStop[4] = {0x7E,0x02,0x0E,0xEF};
+byte playPaused[4] = {0x7E,0x02,0x02,0xEF};
+byte setVolumeLow[5] = {0x7E,0x03,0x31,0x0F,0xEF}; //sets volume to 15
+byte setVolumeHigh[5] = {0x7E,0x03,0x31,0x1E,0xEF}; //sets volume to 30
+byte playReset[5] = {0x7E,0x03,0x35,0x05,0xEF};
+byte playSleep[5] = {0x7E,0x03,0x35,0x03,0xEF};
+byte wakeUp[5] = {0x7E,0x03,0x35,0x02,0xEF};
+
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
 const unsigned int pollTime1 = 5000;       //How long in milliseconds to poll for tags on circuit 1
 const unsigned int pollTime2 = 1000;       //How long in milliseconds to poll for tags on circuit 2
@@ -250,14 +263,41 @@ void setup() {  // This function sets everything up for logging.
 //  
 //  
 
+
+
   RFcircuit = 1;  //Indicates that the reader should start with the primary RFID circuit
 //  RFcircuit = 2;  //Indicates that the reader should start with the secondary RFID circuit  
   serial.println("Scanning for tags...\n");   //message to user
+
+Serial1.begin(9600);
+  delay(500);
+  Serial1.write(wakeUp, 5);
+  delay(500);
+  if (currentMillis >= 19800000 && currentMillis <= 41400000)
+  {
+    delay(500);
+    Serial1.write(selectDevice, 5);
+    delay(500);
+    Serial1.write(setVolumeLow, 5);
+    delay(500);
+    Serial1.write(playDevice, 4);
+    delay(500);
+    Serial1.write(playLoop, 5);
+  }
+  else{
+    Serial1.write(playStop, 4);
+  }
+//  else if (hh >= 15 && mm >= 00) {
+//    Serial1.print("Speaker Stopped");
+//  Serial1.write(playSleep, 5);
+// }
+
+
 } // end setup
 
 
-//******************************MAIN PROGRAM*******************************
 
+//******************************MAIN PROGRAM*******************************
 void loop() {  //This is the main function. It loops (repeats) forever.
   
   serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
@@ -281,6 +321,14 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         flashLED();
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
+        while (currentMillis >= 19800000 && currentMillis <= 41400000)
+        {
+          //Serial1.write(selectDevice, 5);
+          //Serial1.write(setVolumeLow, 5);
+          //delay(500);
+          Serial1.write(playLoop, 5);
+          //serial.println("Noise On");
+        }
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -304,6 +352,13 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         flashLED();
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
+        while(currentMillis >= 19800000 && currentMillis <= 41400000)
+        {
+          //Serial1.write(selectDevice, 5);
+          //Serial1.write(setVolumeLow, 5);
+          Serial1.write(playPaused, 4);
+        }
+        
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -935,4 +990,27 @@ void printDirectory(File dir, int numTabs) {
 //
 //   
 //}
-  
+
+//void startNoise(){
+//  Serial1.begin(9600);
+//  delay(500);
+//  Serial1.write(wakeUp, 5);
+//  delay(500);
+//  if (currentMillis >= 19800000 && currentMillis <= 41400000)
+//  {
+//    delay(500);
+//    Serial1.write(selectDevice, 5);
+//    delay(500);
+//    Serial1.write(setVolumeLow, 5);
+//    delay(500);
+//    Serial1.write(playDevice, 4);
+//    delay(500);
+//    Serial1.write(playLoop, 5);
+//  }
+//  else
+//    Serial1.write(playStop, 4);
+////  else if (hh >= 15 && mm >= 00) {
+////    Serial1.print("Speaker Stopped");
+////  Serial1.write(playSleep, 5);
+//// }
+//}
