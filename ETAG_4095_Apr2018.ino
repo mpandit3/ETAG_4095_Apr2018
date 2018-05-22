@@ -273,7 +273,7 @@ Serial1.begin(9600);
   delay(500);
   Serial1.write(wakeUp, 5);
   delay(500);
-  if (currentMillis >= 19800000 && currentMillis <= 41400000)
+  if (hh == 05 && mm >= 30)
   {
     delay(500);
     Serial1.write(selectDevice, 5);
@@ -284,7 +284,8 @@ Serial1.begin(9600);
     delay(500);
     Serial1.write(playLoop, 5);
   }
-  else{
+  else if (hh == 11 && mm >= 30)
+  {
     Serial1.write(playStop, 4);
   }
 //  else if (hh >= 15 && mm >= 00) {
