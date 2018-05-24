@@ -275,8 +275,24 @@ void setup() {  // This function sets everything up for logging.
 //  RFcircuit = 2;  //Indicates that the reader should start with the secondary RFID circuit  
   serial.println("Scanning for tags...\n");   //message to user
 
-noiseOn(); // Noise subroutines work in Setup!!!
-noiseOff();
+  
+  //if (play == 1){
+    Serial1.begin(9600);
+  serial.println("Serial MP3 Player On");
+      delay(500);
+  Serial1.write(wakeUp, 5);
+      delay(500);
+  Serial1.write(selectDevice, 5);
+      delay(500);
+      Serial1.write(setVolumeLow, 5);
+      delay(500);
+  //} else if (play == 0) {
+    //Serial1.write(playSleep, 5);
+//  }
+//  Serial1.write(playDevice, 4);
+      
+//noiseOn(); // Noise subroutines work in Setup!!!
+//noiseOff();
 
 } // end setup
 
@@ -285,8 +301,8 @@ noiseOff();
 //******************************MAIN PROGRAM*******************************
 void loop() {  //This is the main function. It loops (repeats) forever.
 
-//  noiseOn(); //Speaker will only come on for polling length time of each antenna, then shut off then come on again
-//  noiseOff();
+  noiseOn(); //Speaker will only come on for polling length time of each antenna, then shut off then come on again
+  noiseOff();
   
   serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
   serial.println(RFcircuit);
@@ -301,6 +317,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
 
 //      noiseOn();
 //      noiseOff();
+      
         gManDecoder1.EnableMonitoring();
         delay(readInterval);
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
@@ -311,7 +328,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         flashLED();
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
-        Serial1.write(playLoop, 6);
+        if (play ==1){
+          Serial1.write(playLoop, 6);
+        }
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -337,7 +356,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         flashLED();
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
-        Serial1.write(playStop, 4);
+        if (play == 1){
+          Serial1.write(playStop, 4);
+        }
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -978,19 +999,9 @@ void printDirectory(File dir, int numTabs) {
 void noiseOn(){
     if (play == 1) {
       getTime();
-      if (hh >= 05) {
-      Serial1.begin(9600);
-      delay(500);
-      Serial1.write(wakeUp, 5);
-      delay(500);
-      serial.println("Speaker On");
-//      delay(500);
-      Serial1.write(selectDevice, 5);
-      delay(500);
-      Serial1.write(setVolumeLow, 5);
-      delay(500);
+      if (mm >= 54) {
+ 
       //Serial1.write(playDevice, 4);
-      delay(500);
       Serial1.write(playLoop, 5);  
       }
     } else {
@@ -998,42 +1009,17 @@ void noiseOn(){
     }
   }
 
-//  
-//  
-//  
-//  serial.println("time is: "); 
-//  serial.println(timeString);
-//  play == 1;
-//  getTime();
-//  if (hh >=21 && mm >=00){
-//    
-//      Serial1.begin(9600);
-//      delay(500);
-//      Serial1.write(wakeUp, 5);
-//      delay(500);
-//      serial.println("Speaker On");
-////      delay(500);
-//      Serial1.write(selectDevice, 5);
-//      delay(500);
-//      Serial1.write(setVolumeLow, 5);
-//      delay(500);
-//      //Serial1.write(playDevice, 4);
-//      delay(500);
-//      Serial1.write(playLoop, 5);  
-//  play == 1
-//  }
-//  else if (hh == 21 && mm == 20) {
-//    play == 0;
-//  }
-// }
-//  
 void noiseOff(){
-  play == 0;
+  if (play == 0){
   getTime();
-  if (hh == 23 && mm == 27) {
+  }
+  if (mm >= 55) {
     Serial1.write(playStop, 4);
     Serial1.print("Speaker Stopped");
     Serial1.write(playSleep, 5);
-    loop();
+   // loop();
+ } else {
+  play == 1;
  }
 }
+
