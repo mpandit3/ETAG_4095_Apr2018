@@ -317,14 +317,14 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
         gManDecoder1.EnableMonitoring();
         delay(readInterval);
-//        if (mm >= 10){
-//          if (birdIn == 1){
-//            Serial1.write(playStop, 4);
-////        } else {
-////          play == 1;
-////          Serial1.write(playStop, 4);
-//        }
-//        }
+  
+          if (birdIn == 1){
+            Serial1.write(playStop, 4);
+//        } else {
+//          play == 1;
+//          Serial1.write(playStop, 4);
+        }
+        
       
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
         {   
@@ -1053,3 +1053,5 @@ void noiseOff(){
   play == 1;
  }
 }
+
+
