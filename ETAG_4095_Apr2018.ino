@@ -97,7 +97,7 @@ unsigned int play = 0;
 unsigned int birdIn = 0;
 
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
-const unsigned int pollTime1 = 5000;       //How long in milliseconds to poll for tags on circuit 1
+const unsigned int pollTime1 = 3000;       //How long in milliseconds to poll for tags on circuit 1
 const unsigned int pollTime2 = 3000;       //How long in milliseconds to poll for tags on circuit 2
 const unsigned int readInterval = 500;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
 const unsigned int pauseTime = 500;        //How long in milliseconds to wait between polling intervals
@@ -114,7 +114,7 @@ void writeFlashAddr(unsigned long fAddress);
 void setClk();
 void dumpMem();
 void printDirectory(File dir,int numTabs);
-int hhmm = word(hh, mm);
+unsigned int timeset = ((hh * 60) + mm);
 int hhmm2 = word(slpH, slpM);
 
 
@@ -314,14 +314,20 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime1;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        gManDecoder1.EnableMonitoring();
-        delay(readInterval);
-          if (mm >= 10 && birdIn == 0){
-              Serial1.write(playLoop, 5);
-              } else if (mm >= 10 && birdIn == 1){
-                Serial1.write(playStop, 4);  
-              }
-            
+        
+        if (mm >= 10 && birdIn == 1){
+              Serial1.write(playStop, 4);
+              gManDecoder1.EnableMonitoring();
+              delay(readInterval);
+                } else if (mm >= 10 && birdIn == 0){
+                  Serial1.write(playLoop, 5);  
+                  gManDecoder1.EnableMonitoring();
+                  delay(readInterval); 
+                    } else {
+                      gManDecoder1.EnableMonitoring();
+                      delay(readInterval);    
+                            }
+          
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
         {   
         //serial.print("RFID 1 Tag Detected: "); //Print a message stating that a tag was found 
@@ -331,10 +337,10 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 0;
-          if (mm >= 10 && birdIn == 0){
-            Serial1.write(playLoop, 5);
-            } else if (mm >= 10 && birdIn == 1) {
+          if (mm >= 10 && birdIn == 1){
             Serial1.write(playStop, 4);
+            } else if (mm >= 10 && birdIn == 0) {
+            Serial1.write(playLoop, 5);
             }
         } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
         //match = checkTag();
@@ -350,13 +356,20 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        if (mm >= 10 && birdIn == 1){
+        
+          if (mm >= 10 && birdIn == 1){
               Serial1.write(playStop, 4);
-              } else if (mm >= 10 && birdIn == 0){
-                Serial1.write(playLoop, 6);
-              }
-        gManDecoder2.EnableMonitoring();
-        delay(readInterval);
+              gManDecoder2.EnableMonitoring();
+              delay(readInterval);
+                } else if (mm >= 10 && birdIn == 1){
+                  Serial1.write(playLoop, 5);
+                  gManDecoder2.EnableMonitoring();
+                  delay(readInterval);
+                    } else {
+                      gManDecoder2.EnableMonitoring();
+                      delay(readInterval);
+                     }
+
         if(gManDecoder2.DecodeAvailableData(&xd) > 0)
         {   
         //serial.print("RFID 2 Tag Detected: "); //Print a message stating that a tag was found 
@@ -371,7 +384,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
           } else if (mm >= 10 && birdIn == 0){
             Serial1.write(playLoop, 5);
           }
-        } //End of Tag Read loop (gManDecoder2.DecodeAvailableData(&xd)>0
+        }//End of Tag Read loop (gManDecoder2.DecodeAvailableData(&xd) > 0)
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
