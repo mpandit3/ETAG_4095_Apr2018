@@ -316,17 +316,12 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
         gManDecoder1.EnableMonitoring();
         delay(readInterval);
-           // if (play == 1){
-              if (birdIn == 1){
-              Serial1.write(playStop, 4);
-              serial.println(birdIn);
-              } else if (birdIn == 0)
-              {
-                Serial1.write(playLoop, 6);
-                serial.println(birdIn);
+          if (mm >= 10 && birdIn == 0){
+              Serial1.write(playLoop, 5);
+              } else if (mm >= 10 && birdIn == 1){
+                Serial1.write(playStop, 4);  
               }
-            //}
-
+            
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
         {   
         //serial.print("RFID 1 Tag Detected: "); //Print a message stating that a tag was found 
@@ -335,15 +330,13 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         flashLED();
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
-//        birdIn = 0;
-        serial.println(birdIn);
-        if (birdIn == 1) {
-          Serial1.write(playStop, 4);
-//        } else if (play == 0){
-//          Serial1.write(playStop, 4);
-//        }
-//      }
-
+        birdIn = 0;
+          if (mm >= 10 && birdIn == 0){
+            Serial1.write(playLoop, 5);
+            } else if (mm >= 10 && birdIn == 1) {
+            Serial1.write(playStop, 4);
+            }
+        } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -351,20 +344,17 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       
     gManDecoder1.DisableMonitoring();
     }
-    else 
+     else 
     {digitalWrite(SHD_PINB, LOW); //Turn on secondary RFID circuit
     digitalWrite(SHD_PINA, HIGH); //Turn off primary RFID circuit
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        if (play == 1){
-              if (birdIn == 1){
+        if (mm >= 10 && birdIn == 1){
               Serial1.write(playStop, 4);
-              } else if (birdIn == 0)
-              {
+              } else if (mm >= 10 && birdIn == 0){
                 Serial1.write(playLoop, 6);
               }
-            }
         gManDecoder2.EnableMonitoring();
         delay(readInterval);
         if(gManDecoder2.DecodeAvailableData(&xd) > 0)
@@ -376,23 +366,12 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 1;
-        serial.println(birdIn);
-        serial.println("Bird is In");
-        if (play == 1) {
-          Serial1.write(playStop, 4);
-        } else if (play == 0){
-          Serial1.write(playStop, 4);
-        }
-      }
-        
-//        if (mm >= 10){
-//          if (birdIn == 1) {
-//          play == 0;
-//          Serial1.write(playStop, 4);
-//          } else if (birdIn == 0){
-//            play == 1;
+          if (mm >= 10 && birdIn == 1){
+            Serial1.write(playStop, 4);
+          } else if (mm >= 10 && birdIn == 0){
+            Serial1.write(playLoop, 5);
           }
-        }
+        } //End of Tag Read loop (gManDecoder2.DecodeAvailableData(&xd)>0
         //match = checkTag();
         //serial.print("Match?: ");
         //serial.println(match, DEC);
@@ -1033,28 +1012,19 @@ void printDirectory(File dir, int numTabs) {
 void noiseOn(){
     getTime();
     if (mm >= 10) {
-      play = 1;
+//      play = 1;
         Serial1.write(playLoop, 5);  
-//          } else if (birdIn == 1){
-//              Serial1.write(playStop, 4);
-//          } else if (birdIn == 0){
-//              Serial1.write(playLoop, 5);
-          } else {
-            play = 0;
-          }
         }
+      }
 void noiseOff(){
-  if (play == 0){
     getTime();
+     if (mm >= 11) {
+//      play = 0;
+      Serial1.write(playStop, 4);
+      serial.println("Speaker Stopped");
+      Serial1.write(playSleep, 5);
     }
-  if (mm >= 12) {
-    Serial1.write(playStop, 4);
-    serial.println("Speaker Stopped");
-    Serial1.write(playSleep, 5);
-   // loop();
-// } else {
-//  play = 1;
  }
-}
+
 
 
