@@ -292,9 +292,6 @@ void setup() {  // This function sets everything up for logging.
 //  }
 //  Serial1.write(playDevice, 4);
       
-//noiseOn(); // Noise subroutines work in Setup!!!
-//noiseOff();
-
 } // end setup
 
 
@@ -320,7 +317,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
               gManDecoder1.EnableMonitoring();
               delay(readInterval);
                 } else if (mm >= 10 && birdIn == 0){
-                  Serial1.write(playLoop, 5);  
+                  Serial1.write(playDevice, 4);  
                   gManDecoder1.EnableMonitoring();
                   delay(readInterval); 
                     } else {
@@ -340,7 +337,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
           if (mm >= 10 && birdIn == 1){
             Serial1.write(playStop, 4);
             } else if (mm >= 10 && birdIn == 0) {
-            Serial1.write(playLoop, 5);
+            Serial1.write(playDevice, 4);
             }
         } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
         //match = checkTag();
@@ -362,7 +359,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
               gManDecoder2.EnableMonitoring();
               delay(readInterval);
                 } else if (mm >= 10 && birdIn == 1){
-                  Serial1.write(playLoop, 5);
+                  Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
                     } else {
@@ -1026,7 +1023,7 @@ void noiseOn(){
     getTime();
     if (mm >= 10) {
 //      play = 1;
-        Serial1.write(playLoop, 5);  
+        Serial1.write(playDevice, 4);  
         }
       }
 void noiseOff(){
@@ -1038,6 +1035,3 @@ void noiseOff(){
       Serial1.write(playSleep, 5);
     }
  }
-
-
-
