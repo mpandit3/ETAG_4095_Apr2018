@@ -114,9 +114,8 @@ void writeFlashAddr(unsigned long fAddress);
 void setClk();
 void dumpMem();
 void printDirectory(File dir,int numTabs);
-unsigned int timeset = ((hh * 60) + mm);
-int hhmm2 = word(slpH, slpM);
-
+unsigned int startTime = 330;
+unsigned int endTime = 690;
 
 //take hour and multiply by 60 and add number of minutes. time of day will be in minutes, use mm
 //create global variable to let reader know if speaker is on
@@ -311,12 +310,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime1;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        
-        if (mm >= 10 && birdIn == 1){
+        if ((hh*60)+mm >= startTime && birdIn == 1){
               Serial1.write(playStop, 4);
               gManDecoder1.EnableMonitoring();
               delay(readInterval);
-                } else if (mm >= 10 && birdIn == 0){
+                } else if ((hh*60)+mm >= startTime && birdIn == 0){
                   Serial1.write(playDevice, 4);  
                   gManDecoder1.EnableMonitoring();
                   delay(readInterval); 
@@ -334,9 +332,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 0;
-          if (mm >= 10 && birdIn == 1){
+          if ((hh*60)+mm >= startTime && birdIn == 1){
             Serial1.write(playStop, 4);
-            } else if (mm >= 10 && birdIn == 0) {
+            } else if ((hh*60)+mm >= startTime && birdIn == 0) {
             Serial1.write(playDevice, 4);
             }
         } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
@@ -354,11 +352,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
         
-          if (mm >= 10 && birdIn == 1){
+          if ((hh*60)+mm >= startTime && birdIn == 1){
               Serial1.write(playStop, 4);
               gManDecoder2.EnableMonitoring();
               delay(readInterval);
-                } else if (mm >= 10 && birdIn == 1){
+                } else if ((hh*60)+mm >= startTime && birdIn == 1){
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
@@ -376,9 +374,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 1;
-          if (mm >= 10 && birdIn == 1){
+          if ((hh*60)+mm >= startTime && birdIn == 1){
             Serial1.write(playStop, 4);
-          } else if (mm >= 10 && birdIn == 0){
+          } else if ((hh*60)+mm >= startTime && birdIn == 0){
             Serial1.write(playLoop, 5);
           }
         }//End of Tag Read loop (gManDecoder2.DecodeAvailableData(&xd) > 0)
@@ -1021,17 +1019,20 @@ void printDirectory(File dir, int numTabs) {
 //Serial MP3 Player - Begin Noise at 5:30 and stop noise at 11:30
 void noiseOn(){
     getTime();
-    if (mm >= 10) {
+    if ((hh*60)+mm >= startTime) {
 //      play = 1;
         Serial1.write(playDevice, 4);  
         }
       }
 void noiseOff(){
     getTime();
-     if (mm >= 11) {
+     if ((hh*60)+mm >= endTime) {
 //      play = 0;
       Serial1.write(playStop, 4);
       serial.println("Speaker Stopped");
       Serial1.write(playSleep, 5);
     }
  }
+
+
+
