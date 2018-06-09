@@ -98,7 +98,7 @@ unsigned int birdIn = 0;
 
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
 const unsigned int pollTime1 = 3000;       //How long in milliseconds to poll for tags on circuit 1
-const unsigned int pollTime2 = 1000;       //How long in milliseconds to poll for tags on circuit 2
+const unsigned int pollTime2 = 3000;       //How long in milliseconds to poll for tags on circuit 2
 const unsigned int readInterval = 500;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
 const unsigned int pauseTime = 500;        //How long in milliseconds to wait between polling intervals
 const unsigned int readFreq = 200;         //How long to wait after a tag is successfully read.
@@ -303,7 +303,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
   if ((hh*60)+mm >= startTime && birdIn == 1){
       Serial1.write(playStop, 4);
       } else if ((hh*60)+mm >= startTime && birdIn == 0){
-           Serial1.write(playDevice, 4);  }
+           Serial1.write(playDevice, 4);
+          } else if ((hh*60)+mm >= endTime && (hh*60)+mm <= startTime){
+              Serial1.write(playStop, 4);
+            }
+           
   serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
   serial.println(RFcircuit);
   EM4100Data xd; //special structure for our data
@@ -322,9 +326,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
                   Serial1.write(playDevice, 4);  
                   gManDecoder1.EnableMonitoring();
                   delay(readInterval); 
-//                    } else {
-//                      gManDecoder1.EnableMonitoring();
-//                      delay(readInterval);    
+                    } else {
+                      gManDecoder1.EnableMonitoring();
+                      delay(readInterval);    
                             }
           
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
@@ -364,9 +368,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
-//                    } else {
-//                      gManDecoder2.EnableMonitoring();
-//                      delay(readInterval);
+                    } else {
+                      gManDecoder2.EnableMonitoring();
+                      delay(readInterval);
                      }
 
         if(gManDecoder2.DecodeAvailableData(&xd) > 0)
@@ -392,15 +396,13 @@ void loop() {  //This is the main function. It loops (repeats) forever.
     gManDecoder2.DisableMonitoring();
     }
 
-  //delay(pauseTime);               //pause between polling attempts
+//  delay(pauseTime);               //pause between polling attempts
       if (RFcircuit == 1)             //switch between active RF circuits.
         {RFcircuit = 2;}              // comment out the if statement to use just 1 RFID circuit
         else
         {RFcircuit = 1;}
   //RFcircuit = 1;              //This lines sets the active RF circuit to 1. comment out or delete to use both circuits. Uncomment if you just want to use the primary circuit.
 
-//  noiseOn(); // Speaker will only come on for polling length time of each antenna, then shut off then come on again
-//  noiseOff();
 
 }// end void loop
 
