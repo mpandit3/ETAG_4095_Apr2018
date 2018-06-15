@@ -337,9 +337,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
   // Check to see if we should be sleeping or scanning
   if(awake()) {
 
-    noiseOn();
     noiseOff();
-
+    noiseOn();
+    
       if ((hh*60)+mm >= startTime && birdIn == 1){
       Serial1.write(playStop, 4);
       } else if ((hh*60)+mm >= startTime && birdIn == 0){
@@ -405,9 +405,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
-//                    } else {
-//                      gManDecoder2.EnableMonitoring();
-//                      delay(readInterval);
+                    } else {
+                      gManDecoder2.EnableMonitoring();
+                      delay(readInterval);
                      }
         if(gManDecoder2.DecodeAvailableData(&xd) > 0) {   
           //serial.print("RFID 2 Tag Detected: "); //Print a message stating that a tag was found 
@@ -1113,6 +1113,7 @@ void noiseOn(){
 //      play = 1;
         Serial1.write(playDevice, 4);  
       }
+    }
       
 void noiseOff(){
     getTime();
