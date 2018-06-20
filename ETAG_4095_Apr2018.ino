@@ -57,11 +57,11 @@ ManchesterDecoder gManDecoder2(DEMOD_OUT_PIN,SHD_PINB,ManchesterDecoder::EM4095)
 RTC_RV1805 rtc;
 
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
-String readerID = "OK01"; //The reader id; can be alphanumeric; add leading zeros if you want them
+String readerID = "AR5"; //The reader id; can be alphanumeric; add leading zeros if you want them
 const unsigned int pollTime1 = 3000;       //How long in milliseconds to poll for tags on circuit 1
 const unsigned int pollTime2 = 3000;       //How long in milliseconds to poll for tags on circuit 2
 const unsigned int readInterval = 0;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
-const unsigned int pauseTime = 3000;        //How long in milliseconds to wait between polling intervals
+const unsigned int pauseTime = 500;        //How long in milliseconds to wait between polling intervals
 const unsigned int readFreq = 200;         //How long to wait after a tag is successfully read.
 const unsigned int pollTimeSleep = 300; //This is the time the antenna will be kept on duing sleep, in milliseconds
 const unsigned int pauseTimeSleep = 9000; //This is the time the antenna will be kept off during sleep, in milliseconds
@@ -428,8 +428,18 @@ void loop() {  //This is the main function. It loops (repeats) forever.
     //digitalWrite(SHD_PINB, HIGH); //Turn on secondary RFID circuit
     //digitalWrite(SHD_PINA, HIGH); //Turn off primary RFID circuit
     
+//    delay(pauseTime);               //pause between polling attempts
+
+      if ((hh*60)+mm >= startTime && birdIn == 1){
+        Serial1.write(playStop, 4);
+        delay(pauseTime);               //pause between polling attempts
+          } else if ((hh*60)+mm >= startTime && birdIn == 0){
+            Serial1.write(playDevice, 4);
+            delay(pauseTime);               //pause between polling attempts
+              } else {
+                delay(pauseTime);               //pause between polling attempts
+               }
     
-    delay(pauseTime);               //pause between polling attempts
     if (RFcircuit == 1) {            //switch between active RF circuits.
       RFcircuit = 2;                 // comment out the if statement to use just 1 RFID circuit
     }              
