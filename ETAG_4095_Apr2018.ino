@@ -57,11 +57,11 @@ ManchesterDecoder gManDecoder2(DEMOD_OUT_PIN,SHD_PINB,ManchesterDecoder::EM4095)
 RTC_RV1805 rtc;
 
 //********************CONSTANTS (SET UP LOGGING PARAMETERS HERE!!)*******************************
-String readerID = "AR5"; //The reader id; can be alphanumeric; add leading zeros if you want them
+String readerID = "AR4"; //The reader id; can be alphanumeric; add leading zeros if you want them
 const unsigned int pollTime1 = 3000;       //How long in milliseconds to poll for tags on circuit 1
 const unsigned int pollTime2 = 3000;       //How long in milliseconds to poll for tags on circuit 2
-const unsigned int readInterval = 0;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
-const unsigned int pauseTime = 500;        //How long in milliseconds to wait between polling intervals
+const unsigned int readInterval = 500;     //How often to try for repeated tag reads (milliseconds - should be at least 100, should not exceed pollTime)
+const unsigned int pauseTime = 100;        //How long in milliseconds to wait between polling intervals
 const unsigned int readFreq = 200;         //How long to wait after a tag is successfully read.
 const unsigned int pollTimeSleep = 300; //This is the time the antenna will be kept on duing sleep, in milliseconds
 const unsigned int pauseTimeSleep = 9000; //This is the time the antenna will be kept off during sleep, in milliseconds
@@ -334,14 +334,14 @@ void setup() {  // This function sets everything up for logging.
 void loop() {  //This is the main function. It loops (repeats) forever.
   // Check to see if we should be sleeping or scanning
   if(awake()) {
-     noiseOn(); //Speaker will only come on for polling length time of each antenna, then shut off then come on again
      noiseOff();
+//     noiseOn(); //Speaker will only come on for polling length time of each antenna, then shut off then come on again
 
-      if ((hh*60)+mm >= startTime && birdIn == 1){
+      if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
           Serial1.write(playStop, 4);
-          } else if ((hh*60)+mm >= startTime && birdIn == 0){
+          } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
                Serial1.write(playDevice, 4);
-              } else if ((hh*60)+mm+ss >= endTime && (hh*60)+mm+ss <= startTime){
+              } else if (endTime >= (hh*60)+mm >= startTime){
                   Serial1.write(playStop, 4);
                 }
     serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
@@ -354,11 +354,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime1;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-          if (endTime >= (hh*60)+mm >= startTime && birdIn == 1){
+          if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
               Serial1.write(playStop, 4);
               gManDecoder1.EnableMonitoring();
               delay(readInterval);
-                } else if (endTime >= (hh*60)+mm >= startTime && birdIn == 0){
+                } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
                   Serial1.write(playDevice, 4);  
                   gManDecoder1.EnableMonitoring();
                   delay(readInterval); 
@@ -374,9 +374,9 @@ void loop() {  //This is the main function. It loops (repeats) forever.
             logRFID_To_SD(&xd);
             writeRFID_To_FlashLine(&xd);  //function to log to backup memory
             birdIn = 0;
-              if (endTime >= (hh*60)+mm >= startTime && birdIn == 1){
+              if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
             Serial1.write(playStop, 4);
-            } else if (endTime >= (hh*60)+mm >= startTime && birdIn == 0) {
+            } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime) {
             Serial1.write(playDevice, 4);
             }
             } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
@@ -393,11 +393,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        if ((hh*60)+mm >= startTime && birdIn == 1){
+        if (birdIn == 1 && (hh*60)+mm >= startTime){
               Serial1.write(playStop, 4);
               gManDecoder2.EnableMonitoring();
               delay(readInterval);
-                } else if ((hh*60)+mm >= startTime && birdIn == 0){
+                } else if (birdIn == 0 && (hh*60)+mm >= startTime){
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
@@ -413,10 +413,10 @@ void loop() {  //This is the main function. It loops (repeats) forever.
           logRFID_To_SD(&xd);
           writeRFID_To_FlashLine(&xd);  //function to log to backup memory
           birdIn = 1;
-            if ((hh*60)+mm >= startTime && birdIn == 1){
+            if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
             Serial1.write(playStop, 4);
-//          } else if ((hh*60)+mm >= startTime && birdIn == 0){
-//            Serial1.write(playDevice, 5);
+          } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
+            Serial1.write(playDevice, 5);
           }
           //match = checkTag();
           //serial.print("Match?: ");
@@ -428,17 +428,17 @@ void loop() {  //This is the main function. It loops (repeats) forever.
     //digitalWrite(SHD_PINB, HIGH); //Turn on secondary RFID circuit
     //digitalWrite(SHD_PINA, HIGH); //Turn off primary RFID circuit
     
-//    delay(pauseTime);               //pause between polling attempts
-
-      if ((hh*60)+mm >= startTime && birdIn == 1){
-        Serial1.write(playStop, 4);
-        delay(pauseTime);               //pause between polling attempts
-          } else if ((hh*60)+mm >= startTime && birdIn == 0){
-            Serial1.write(playDevice, 4);
-            delay(pauseTime);               //pause between polling attempts
-              } else {
-                delay(pauseTime);               //pause between polling attempts
-               }
+    delay(pauseTime);               //pause between polling attempts
+//
+//      if (birdIn == 1 && (hh*60)+mm >= startTime){
+//        Serial1.write(playStop, 4);
+//        delay(pauseTime);               //pause between polling attempts
+//          } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+//            Serial1.write(playDevice, 4);
+//            delay(pauseTime);               //pause between polling attempts
+//              } else {
+//                delay(pauseTime);               //pause between polling attempts
+//               }
     
     if (RFcircuit == 1) {            //switch between active RF circuits.
       RFcircuit = 2;                 // comment out the if statement to use just 1 RFID circuit
@@ -1157,8 +1157,13 @@ void printDirectory(File dir, int numTabs) {
 void noiseOn(){
     getTime();
     if ((hh*60)+mm >= startTime) {
-//      play = 1;
         Serial1.write(playDevice, 4);  
+        }
+        if (birdIn == 1) {
+          Serial1.write(playStop, 4);
+          }
+          else if (birdIn == 0) {
+            Serial1.write(playDevice, 4);
         }
       }
 void noiseOff(){
