@@ -341,8 +341,8 @@ void loop() {  //This is the main function. It loops (repeats) forever.
           Serial1.write(playStop, 4);
           } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
                Serial1.write(playDevice, 4);
-              } else if (endTime >= (hh*60)+mm >= startTime){
-                  Serial1.write(playStop, 4);
+//              } else if (endTime >= (hh*60)+mm >= startTime){
+//                  Serial1.write(playStop, 4);
                 }
     serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
     serial.println(RFcircuit);
