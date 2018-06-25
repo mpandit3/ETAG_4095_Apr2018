@@ -65,13 +65,13 @@ const unsigned int pauseTime = 100;        //How long in milliseconds to wait be
 const unsigned int readFreq = 200;         //How long to wait after a tag is successfully read.
 const unsigned int pollTimeSleep = 300; //This is the time the antenna will be kept on duing sleep, in milliseconds
 const unsigned int pauseTimeSleep = 9000; //This is the time the antenna will be kept off during sleep, in milliseconds
-byte slpH = 23;                            //When to go to sleep at night - hour
-byte slpM = 59;                            //When to go to sleep at night - minute
-byte wakH = 00;                            //When to wake up in the morning - hour             
+byte slpH = 22;                            //When to go to sleep at night - hour
+byte slpM = 00;                            //When to go to sleep at night - minute
+byte wakH = 05;                            //When to wake up in the morning - hour             
 byte wakM = 01;                            //When to wake up in the morning - minute 
 byte wakS = 01; //Wen to wake up in the morning - minute
-unsigned int startTime = 2; //5:30am = 330 minutes
-unsigned int endTime = 1438; //11:30am = 690 minutes
+unsigned int startTime = 330; //5:30am = 330 minutes
+unsigned int endTime = 690; //11:30am = 690 minutes
 
 //***********************************************************************************************
 //************************* Serial MP3 Player Commands ***************************
