@@ -393,11 +393,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-        if (birdIn == 1 && (hh*60)+mm >= startTime){
+        if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
               Serial1.write(playStop, 4);
               gManDecoder2.EnableMonitoring();
               delay(readInterval);
-                } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+                } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
@@ -1172,6 +1172,6 @@ void noiseOff(){
 //      play = 0;
       Serial1.write(playStop, 4);
       serial.println("Speaker Stopped");
-      Serial1.write(playSleep, 5);
+//      Serial1.write(playSleep, 5);
     }
  }
