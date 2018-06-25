@@ -65,13 +65,13 @@ const unsigned int pauseTime = 100;        //How long in milliseconds to wait be
 const unsigned int readFreq = 200;         //How long to wait after a tag is successfully read.
 const unsigned int pollTimeSleep = 300; //This is the time the antenna will be kept on duing sleep, in milliseconds
 const unsigned int pauseTimeSleep = 9000; //This is the time the antenna will be kept off during sleep, in milliseconds
-byte slpH = 22;                            //When to go to sleep at night - hour
-byte slpM = 00;                            //When to go to sleep at night - minute
-byte wakH = 05;                            //When to wake up in the morning - hour             
-byte wakM = 00;                            //When to wake up in the morning - minute 
-byte wakS = 0; //Wen to wake up in the morning - minute
-unsigned int startTime = 330; //5:30am = 330 minutes
-unsigned int endTime = 690; //11:30am = 690 minutes
+byte slpH = 23;                            //When to go to sleep at night - hour
+byte slpM = 59;                            //When to go to sleep at night - minute
+byte wakH = 00;                            //When to wake up in the morning - hour             
+byte wakM = 01;                            //When to wake up in the morning - minute 
+byte wakS = 01; //Wen to wake up in the morning - minute
+unsigned int startTime = 2; //5:30am = 330 minutes
+unsigned int endTime = 1438; //11:30am = 690 minutes
 
 //***********************************************************************************************
 //************************* Serial MP3 Player Commands ***************************
@@ -334,16 +334,26 @@ void setup() {  // This function sets everything up for logging.
 void loop() {  //This is the main function. It loops (repeats) forever.
   // Check to see if we should be sleeping or scanning
   if(awake()) {
+
+    if ((hh*60)+mm ==startTime){
+      Serial1.write(wakeUpPlay, 5);
+    }
+    if (birdIn == 1 && (hh*60)+mm >= startTime){
+          Serial1.write(playStop, 4);
+          } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+               Serial1.write(playDevice, 4);
+//              } else if (birdIn == 1 && endTime >= (hh*60)+mm){
+//                  Serial1.write(playStop, 4);
+//                } else if (birdIn == 0 && endTime >= (hh*60)+mm){
+//                    Serial1.write(playStop,4);
+//                }
+//    } else if ((hh*60)+mm >=endTime){
+//      Serial1.write(playSleep, 5);
+    }
      noiseOff();
 //     noiseOn(); //Speaker will only come on for polling length time of each antenna, then shut off then come on again
 
-      if (birdIn == 1 && endTime >= (hh*60)+mm >= startTime){
-          Serial1.write(playStop, 4);
-          } else if (birdIn == 0 && endTime >= (hh*60)+mm >= startTime){
-               Serial1.write(playDevice, 4);
-//              } else if (endTime >= (hh*60)+mm >= startTime){
-//                  Serial1.write(playStop, 4);
-                }
+      
     serial.print("Scanning RFID circuit "); //Tell the user which circuit is active
     serial.println(RFcircuit);
     EM4100Data xd; //special structure for our data
@@ -365,6 +375,7 @@ void loop() {  //This is the main function. It loops (repeats) forever.
                     } else {
                       gManDecoder1.EnableMonitoring();
                       delay(readInterval);    
+                           
                             }
           if(gManDecoder1.DecodeAvailableData(&xd) > 0) {   
             //serial.print("RFID 2 Tag Detected: "); //Print a message stating that a tag was found 
@@ -401,10 +412,11 @@ void loop() {  //This is the main function. It loops (repeats) forever.
                   Serial1.write(playDevice, 4);
                   gManDecoder2.EnableMonitoring();
                   delay(readInterval);
-                    } else {
+                  } else {
                       gManDecoder2.EnableMonitoring();
-                      delay(readInterval);
-                     }
+                      delay(readInterval);    
+                            
+                            }
         if(gManDecoder2.DecodeAvailableData(&xd) > 0) {   
           //serial.print("RFID 2 Tag Detected: "); //Print a message stating that a tag was found 
           getTime();                           //Call a subroutine function that reads the time from the clock
@@ -681,6 +693,7 @@ void goToSleep() {
 void wakeUp() {
   //serial.println("Waking up now"); //This won't be displayed
   saveLogSD("SCANNING STARTED");
+  Serial1.write(wakeUpPlay, 5);
 }
 /*
 void getTime() {  //Read in the time from the clock registers
@@ -1156,22 +1169,20 @@ void printDirectory(File dir, int numTabs) {
 //Serial MP3 Player - Begin Noise at 5:30 and stop noise at 11:30
 void noiseOn(){
     getTime();
-    if ((hh*60)+mm >= startTime) {
-        Serial1.write(playDevice, 4);  
-        }
-        if (birdIn == 1) {
-          Serial1.write(playStop, 4);
-          }
-          else if (birdIn == 0) {
-            Serial1.write(playDevice, 4);
-        }
-      }
+      if (birdIn == 1 && (hh*60)+mm >= startTime){
+      Serial1.write(playStop, 4);
+      } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+           Serial1.write(playDevice, 4);
+            }
+  }
 void noiseOff(){
     getTime();
      if ((hh*60)+mm >= endTime) {
-//      play = 0;
       Serial1.write(playStop, 4);
+      Serial1.write(playSleep, 5);
       serial.println("Speaker Stopped");
-//      Serial1.write(playSleep, 5);
+//     } else if (birdIn == 0 && (hh*60)+mm >= endTime) {
+//        Serial1.write(playStop, 4);
+      
     }
  }
