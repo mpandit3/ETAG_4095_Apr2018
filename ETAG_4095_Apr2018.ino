@@ -114,8 +114,8 @@ void writeFlashAddr(unsigned long fAddress);
 void setClk();
 void dumpMem();
 void printDirectory(File dir,int numTabs);
-unsigned int startTime = 330;
-unsigned int endTime = 690;
+unsigned int startTime = 19800; //Start time is in seconds now. 5*3600 + 30*60
+unsigned int endTime = 41400; //End time is in seconds now. 11*3600 + 30*60
 
 //take hour and multiply by 60 and add number of minutes. time of day will be in minutes, use mm
 //create global variable to let reader know if speaker is on
@@ -325,19 +325,20 @@ void loop() {  //This is the main function. It loops (repeats) forever.
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime1;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
-if (birdIn == 1 && (hh*60)+mm >= startTime){
-              Serial1.write(playStop, 4);
-              gManDecoder1.EnableMonitoring();
-              delay(readInterval);
-                } else if (birdIn == 0 && (hh*60)+mm >= startTime){
-                  Serial1.write(playDevice, 4);  
-                  gManDecoder1.EnableMonitoring();
-                  delay(readInterval); 
-                    } else {
-                      gManDecoder1.EnableMonitoring();
-                      delay(readInterval);    
-                           
-                            }
+        gManDecoder1.EnableMonitoring();
+        delay(readInterval);
+//        if (birdIn == 1 && (hh*3600)+(mm*60)+ss >= startTime){
+//              Serial1.write(playStop, 4);
+//              gManDecoder1.EnableMonitoring();
+//              delay(readInterval);
+//                } else if (birdIn == 0 && (hh*3600)+(mm*60)+ss >= startTime){
+//                  Serial1.write(playDevice, 4);  
+//                  gManDecoder1.EnableMonitoring();
+//                  delay(readInterval); 
+//                    } else {
+//                      gManDecoder1.EnableMonitoring();
+//                      delay(readInterval);    
+//                            }
           
         if(gManDecoder1.DecodeAvailableData(&xd) > 0)
         {   
@@ -348,9 +349,9 @@ if (birdIn == 1 && (hh*60)+mm >= startTime){
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 0;
-          if (birdIn == 1 && (hh*60)+mm >= startTime){
+          if (birdIn == 1 && (hh*3600)+(mm*60)+ss >= startTime){
             Serial1.write(playStop, 4);
-            } else if (birdIn == 0 && (hh*60)+mm >= startTime) {
+            } else if (birdIn == 0 && (hh*3600)+(mm*60)+ss >= startTime) {
             Serial1.write(playDevice, 4);
             }
         } //End of Tag Read loop (gManDecoder1.DecodeAvailableData(&xd) > 0)
@@ -367,20 +368,21 @@ if (birdIn == 1 && (hh*60)+mm >= startTime){
       currentMillis = millis();                //To determine how long to poll for tags, first get the current value of the built in millisecond clock on the processor
       stopMillis = currentMillis + pollTime2;   //next add the value of polltime to the current clock time to determine the desired stop time.
       while (stopMillis > millis()) {          //As long as the stoptime is less than the current millisecond counter, then keep looking for a tag
+        gManDecoder2.EnableMonitoring();
+        delay(readInterval);        
         
-          if (birdIn == 1 && (hh*60)+mm >= startTime){
-              Serial1.write(playStop, 4);
-              gManDecoder2.EnableMonitoring();
-              delay(readInterval);
-                } else if (birdIn == 0 && (hh*60)+mm >= startTime){
-                  Serial1.write(playDevice, 4);
-                  gManDecoder2.EnableMonitoring();
-                  delay(readInterval);
-                  } else {
-                      gManDecoder2.EnableMonitoring();
-                      delay(readInterval);    
-                            
-                            }
+//          if (birdIn == 1 && (hh*3600)+(mm*60)+ss >= startTime){
+//              Serial1.write(playStop, 4);
+//              gManDecoder2.EnableMonitoring();
+//              delay(readInterval);
+//                } else if (birdIn == 0 && (hh*3600)+(mm*60)+ss >= startTime){
+//                  Serial1.write(playDevice, 4);
+//                  gManDecoder2.EnableMonitoring();
+//                  delay(readInterval);
+//                  } else {
+//                      gManDecoder2.EnableMonitoring();
+//                      delay(readInterval);                                
+//                            }
 
         if(gManDecoder2.DecodeAvailableData(&xd) > 0)
         {   
@@ -391,9 +393,9 @@ if (birdIn == 1 && (hh*60)+mm >= startTime){
         logRFID_To_SD(&xd);
         writeRFID_To_FlashLine(&xd);  //function to log to backup memory
         birdIn = 1;
-            if (birdIn == 1 && (hh*60)+mm >= startTime){
+            if (birdIn == 1 && (hh*3600)+(mm*60)+ss >= startTime){
             Serial1.write(playStop, 4);
-          } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+          } else if (birdIn == 0 && (hh*3600)+(mm*60)+ss >= startTime){
             Serial1.write(playDevice, 5);
           }
         }//End of Tag Read loop (gManDecoder2.DecodeAvailableData(&xd) > 0)
@@ -413,6 +415,7 @@ if (birdIn == 1 && (hh*60)+mm >= startTime){
   //RFcircuit = 1;              //This lines sets the active RF circuit to 1. comment out or delete to use both circuits. Uncomment if you just want to use the primary circuit.
 
 }// end void loop
+
 
 
 //*********************SUBROUTINES*************************//
@@ -1033,18 +1036,18 @@ void printDirectory(File dir, int numTabs) {
 //Serial MP3 Player - Begin Noise at 5:30 and stop noise at 11:30
 void noiseOn(){
     getTime();
-      if ((hh*60)+mm ==startTime){
+      if ((hh*3600)+(mm*60)+ss ==startTime){
       Serial1.write(wakeUpPlay, 5);
     }
-    if (birdIn == 1 && (hh*60)+mm >= startTime){
+    if (birdIn == 1 && (hh*3600)+(mm*60)+ss >= startTime){
           Serial1.write(playStop, 4);
-          } else if (birdIn == 0 && (hh*60)+mm >= startTime){
+          } else if (birdIn == 0 && (hh*3600)+(mm*60)+ss >= startTime){
                Serial1.write(playDevice, 4);
               }
   }
 void noiseOff(){
     getTime();
-     if ((hh*60)+mm >= endTime) {
+     if ((hh*3600)+(mm*60)+ss >= endTime) {
       Serial1.write(playStop, 4);
       Serial1.write(playSleep, 5);
       serial.println("Speaker Stopped");
@@ -1053,3 +1056,4 @@ void noiseOff(){
       
     }
  }
+
